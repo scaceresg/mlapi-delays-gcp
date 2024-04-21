@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 __pycache__
 try_model.py
+=======
+try_model.py
+__pycache__
+>>>>>>> feature/model
