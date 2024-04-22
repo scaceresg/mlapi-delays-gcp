@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Tuple, Union, List
 from sklearn.model_selection import train_test_split
 import xgboost as xgb
+import pickle
 
 class DelayModel:
 
@@ -12,6 +13,18 @@ class DelayModel:
     ):
         self._model = None # Model should be saved in this attribute.
         self.raw_data = pd.read_csv(filepath_or_buffer="./data/data.csv")
+        self.top_features = [
+            "OPERA_Latin American Wings", 
+            "MES_7",
+            "MES_10",
+            "OPERA_Grupo LATAM",
+            "MES_12",
+            "TIPOVUELO_I",
+            "MES_4",
+            "MES_11",
+            "OPERA_Sky Airline",
+            "OPERA_Copa Air"
+        ]
 
     # Preprocess data: get features and target (if not None)
     def preprocess(
@@ -30,21 +43,7 @@ class DelayModel:
             Tuple[pd.DataFrame, pd.DataFrame]: features and target.
             or
             pd.DataFrame: features.
-        """
-        # Important features
-        top_features = [
-            "OPERA_Latin American Wings", 
-            "MES_7",
-            "MES_10",
-            "OPERA_Grupo LATAM",
-            "MES_12",
-            "TIPOVUELO_I",
-            "MES_4",
-            "MES_11",
-            "OPERA_Sky Airline",
-            "OPERA_Copa Air"
-        ]
-        
+        """        
         # Get dummies and concatenate
         features = None
         try:
@@ -57,11 +56,11 @@ class DelayModel:
             print("Input data is missing at least one of the columns: 'OPERA', 'MES', 'TIPOVUELO'")
 
         # Filter top features
-        features = features[top_features]
+        filtered_features = self.check_filter_top_feat(features)
 
         # If target_column is None: return features
         if target_column is None:
-            return features
+            return filtered_features
 
         elif target_column not in data.columns: # elif not in columns: find target ('delay')
             try:
@@ -69,11 +68,11 @@ class DelayModel:
                 target = pd.DataFrame(data_target['delay'])
             except:
                 print("Input data is missing at least one of the columns: 'Fecha-I', 'Fecha-O'")
-            return ([features, target])
+            return ([filtered_features, target])
         
         else:   # if in columns
             target = pd.DataFrame(data[target_column])
-            return ([features, target])
+            return ([filtered_features, target])
 
     # Fit model
     def fit(
@@ -88,6 +87,9 @@ class DelayModel:
             features (pd.DataFrame): preprocessed data.
             target (pd.DataFrame): target.
         """
+        # Reorder columns
+        features = features.reindex(columns=self.top_features)
+
         # Split data
         X_train, _, y_train, _ = train_test_split(features, 
                                                   target, 
@@ -122,6 +124,9 @@ class DelayModel:
         Returns:
             (List[int]): predicted targets.
         """
+        # Reorder columns
+        features = features.reindex(columns=self.top_features)
+        
         # Check if self._model is None
         if self._model is None:
             _features, _target = self.preprocess(data=self.raw_data,
@@ -136,7 +141,7 @@ class DelayModel:
 
         return y_pred_list
     
-    ###### New Methods: Preprocessing methods ######
+    ###### Preprocessing methods ######
     # Get minute difference
     def get_min_diff(
         self, 
@@ -177,4 +182,35 @@ class DelayModel:
         data['delay'] = np.where(data['min_diff'] > threshold, 1, 0)
 
         return data
+    
+    ###### API methods ######
+    # Save trained model
+    def save_model(
+        self,
+        version:str
+    ) -> None:
+        try:
+            with open(f'delay_model-{version}.pkl', 'wb') as f:
+                pickle.dump(self._model, f)
+        except:
+            print('The model is not trained yet!')
+
+        return None
+
+    # Filter important features
+    def check_filter_top_feat(
+        self,
+        features:pd.DataFrame
+    ) -> pd.DataFrame:        
+        # Add top features if not in features
+        for top_feat in self.top_features:
+            if top_feat not in features.columns:
+                features[top_feat] = False
+
+        drop_features = [feat for feat in features.columns if feat not in self.top_features]
+        features.drop(columns=drop_features, inplace=True)
+
+        return features
+        
+
         
