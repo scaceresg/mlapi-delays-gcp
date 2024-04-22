@@ -1,0 +1,8 @@
+<<<<<<< HEAD
+__pycache__
+try_model.py
+=======
+*.log
+try_model.py
+__pycache__
+>>>>>>> feature/model
