@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="4.272" timestamp="2024-04-22T13:16:32.292828" hostname="sebastiancg"><testcase classname="" name="tests.api.test_api" time="0.000"><error message="collection failure">ImportError while importing test module 'G:\My Drive\GitHub\proj-challenge-LATAM\tests\api\test_api.py'.
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="3.810" timestamp="2024-04-22T17:06:59.543825" hostname="sebastiancg"><testcase classname="" name="tests.api.test_api" time="0.000"><error message="collection failure">ImportError while importing test module 'G:\My Drive\GitHub\proj-challenge-LATAM\tests\api\test_api.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 C:\Users\sebastiancg\AppData\Local\Programs\Python\Python310\lib\importlib\__init__.py:126: in import_module
@@ -7,6 +7,6 @@ tests\api\test_api.py:4: in &lt;module&gt;
     from challenge import app
 challenge\__init__.py:1: in &lt;module&gt;
     from challenge.api import app
-challenge\api.py:6: in &lt;module&gt;
+challenge\api.py:5: in &lt;module&gt;
     from model import DelayModel
 E   ModuleNotFoundError: No module named 'model'</error></testcase></testsuite></testsuites>
