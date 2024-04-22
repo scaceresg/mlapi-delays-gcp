@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from datetime import datetime
+from pathlib import Path
 from typing import Tuple, Union, List
 from sklearn.model_selection import train_test_split
 import xgboost as xgb
@@ -8,11 +9,13 @@ import pickle
 
 class DelayModel:
 
+    base_dir = Path(__file__).resolve(strict=True).parents[1]
+
     def __init__(
         self
     ):
         self._model = None # Model should be saved in this attribute.
-        self.raw_data = pd.read_csv(filepath_or_buffer="./data/data.csv")
+        self.raw_data = pd.read_csv(Path(self.base_dir, 'data/data.csv'))
         self.top_features = [
             "OPERA_Latin American Wings", 
             "MES_7",
