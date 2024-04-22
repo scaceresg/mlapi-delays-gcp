@@ -6,6 +6,8 @@ WORKDIR /code
 
 # Copy the requirements.txt file
 COPY ./requirements.txt /code/requirements.txt
+COPY ./requirements-test.txt /code/requirements-test.txt
+COPY ./requirements-dev.txt /code/requirements-dev.txt
 
 # Install requirements.txt package
 RUN pip install -r /code/requirements.txt
