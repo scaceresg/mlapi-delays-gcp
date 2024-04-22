@@ -9,6 +9,8 @@ COPY ./requirements.txt /code/requirements.txt
 
 # Install requirements.txt package
 RUN pip install -r /code/requirements.txt
+RUN pip install -r /code/requirements-test.txt
+RUN pip install -r /code/requirements-dev.txt
 RUN pip cache purge
 
 # Copy /challenge and /data directories to /code
