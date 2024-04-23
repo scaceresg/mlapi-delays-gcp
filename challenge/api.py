@@ -5,7 +5,8 @@ from pydantic import BaseModel
 from model import DelayModel
 import uvicorn
 
-# Define app
+
+# Define app in FastAPI
 app = FastAPI()
 
 # Import model from DelayModel
