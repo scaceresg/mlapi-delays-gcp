@@ -2,6 +2,7 @@ import pandas as pd
 from fastapi import FastAPI, Response, status, HTTPException
 from pydantic import BaseModel
 from model import DelayModel
+import uvicorn
 
 # Define app
 app = FastAPI()
@@ -55,16 +56,18 @@ async def post_predict(flights:FlightsInfo, response:Response) -> dict:
         response.status_code = status.HTTP_400_BAD_REQUEST
         raise HTTPException(status_code=400, detail='OPERA should be an airline operator')
     
-    elif flights.TIPOVUELO not in ['N', 'I']:
+    if flights.TIPOVUELO not in ['N', 'I']:
         response.status_code = status.HTTP_400_BAD_REQUEST
         raise HTTPException(status_code=400, detail="TIPOVUELO should be either 'N' or 'I'")
-    
-    elif flights.MES not in list(range(1, 13)) or not isinstance(flights.MES, int):
+
+    if flights.MES not in list(range(1, 13)) or type(flights.MES) != int:
         response.status_code = status.HTTP_400_BAD_REQUEST
         raise HTTPException(status_code=400, detail='MES should be an integer between 1 and 12')
     
+    print(flights, type(flights))
+
     # Convert JSON to DataFrame
-    flights_dict = flights.model_dump()
+    flights_dict = flights.dict()
     
     # Get input data as df
     flights_df = pd.DataFrame([flights_dict])
@@ -74,3 +77,6 @@ async def post_predict(flights:FlightsInfo, response:Response) -> dict:
     y_pred = model.predict(features=flights_feats)
     
     return {'predict': y_pred}
+
+if __name__ == "__main__":
+    uvicorn.run("api:app", host="0.0.0.0", port='8080')
