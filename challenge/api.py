@@ -1,4 +1,5 @@
 import pandas as pd
+from typing import Dict, List
 from fastapi import FastAPI, Response, status, HTTPException
 from pydantic import BaseModel
 from model import DelayModel
@@ -37,10 +38,13 @@ unique_opers = [
 ]
 
 # Class to format flights data
-class FlightsInfo(BaseModel):
+class FlightInfo(BaseModel):
     OPERA: str
     TIPOVUELO: str
     MES: int
+
+class FlightsReq(BaseModel):
+    flights: List[FlightInfo]
 
 @app.get("/health", status_code=200)
 async def get_health() -> dict:
@@ -49,25 +53,25 @@ async def get_health() -> dict:
     }
 
 @app.post("/predict", status_code=200)
-async def post_predict(flights:FlightsInfo, response:Response) -> dict:
+async def post_predict(flight_req:FlightsReq, response:Response) -> dict:
+    
+    flight = flight_req.flights[0]
     
     # Validate input data
-    if flights.OPERA not in unique_opers:
+    if flight.OPERA not in unique_opers:
         response.status_code = status.HTTP_400_BAD_REQUEST
         raise HTTPException(status_code=400, detail='OPERA should be an airline operator')
     
-    if flights.TIPOVUELO not in ['N', 'I']:
+    if flight.TIPOVUELO not in ['N', 'I']:
         response.status_code = status.HTTP_400_BAD_REQUEST
         raise HTTPException(status_code=400, detail="TIPOVUELO should be either 'N' or 'I'")
 
-    if flights.MES not in list(range(1, 13)) or type(flights.MES) != int:
+    if flight.MES not in list(range(1, 13)) or type(flight.MES) != int:
         response.status_code = status.HTTP_400_BAD_REQUEST
         raise HTTPException(status_code=400, detail='MES should be an integer between 1 and 12')
-    
-    print(flights, type(flights))
 
     # Convert JSON to DataFrame
-    flights_dict = flights.dict()
+    flights_dict = flight.dict()
     
     # Get input data as df
     flights_df = pd.DataFrame([flights_dict])
