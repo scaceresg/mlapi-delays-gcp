@@ -3,3 +3,4 @@ try_model.py
 .pytest_cache
 Procfile
 runtime.txt
+*.pyc
